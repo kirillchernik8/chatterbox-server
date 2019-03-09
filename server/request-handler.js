@@ -12,49 +12,47 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-let messages = {
-  results: []
-}
+
+
+var messages = {results: []}
 
 exports.requestHandler = function (request, response) {
- 
+  
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-  var statusCode = 200;
+  var statusCode ;
   var headers = defaultCorsHeaders;
-  headers['Content-Type'] = 'application/json'
+  headers['Content-Type'] = 'application/json';
 
-  if(request.url === '/classes/messages'){
+  if (request.url === '/classes/messages' || request.url === '/' ) {
+
     if (request.method === 'GET') {
       statusCode = 200
       response.writeHead(statusCode, headers)
       response.end(JSON.stringify(messages));
-    } else if(request.method === 'OPTIONS'){
-      statusCode = 200
-      response.writeHead(statusCode, headers)
-      response.end(headers);
 
-    } else if (request.method === 'POST') {
+    }  else if (request.method === 'POST') {
+
       var body = '';
       request.on('data', chunk => {
         body += chunk
       }).on('end', () => {
-        body = JSON.parse(body);
-        messages.results.push(body);
+        messages.results.push(JSON.parse(body));
       });
-  
+
       statusCode = 201;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(messages));
-    }
+    } 
   } else {
     statusCode = 404
     response.writeHead(statusCode, headers);
     response.end();
-  }  
-  response.end()
+  }
+
+  response.end(JSON.stringify(messages))
 }
 
-
+exports.messages = messages; 
 
 
 // Make sure to always call response.end() - Node may not send
